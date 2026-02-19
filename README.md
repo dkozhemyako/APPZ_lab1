@@ -59,19 +59,19 @@ Demonstrates:
 
 ### Screenshots
 **01 — Visual Studio project opened**  
-![01](docs/screenshots/01.png)
+![01](BoardGames/docs/screenshots/01.png)
 
 **02 — Program menu**  
-![02](docs/screenshots/02.png)
+![02](BoardGames/docs/screenshots/02.png)
 
 **03 — Demo: invalid components (missing Figures)**  
-![03](docs/screenshots/03.png)
+![03](BoardGames/docs/screenshots/03.png)
 
 **04 — Demo: invalid components (extra Dice)**  
-![04](docs/screenshots/04.png)
+![04](BoardGames/docs/screenshots/04.png)
 
 **05 — Demo: invalid players count (Monopoly)**  
-![05](docs/screenshots/05.png)
+![05](BoardGames/docs/screenshots/05.png)
 
 **06 — Demo: full flow (turn order + one action per turn + winner + events)**  
-![06](docs/screenshots/06.png)
+![06](BoardGames/docs/screenshots/06.png)
