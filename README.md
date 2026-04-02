@@ -18,14 +18,14 @@ Implemented requirements:
 ---
 
 ## Project structure
-- `Domain/` — domain logic (entities, rules, session, turn manager)
-- `Program.cs` — console UI (input/output, subscriptions to events)
-- `docs/screenshots/` — screenshots
+- `BoardGames/Domain/` — domain logic (entities, rules, session, turn manager)
+- `BoardGames/Domain/Validation/` — setup validation (Chain of Responsibility)
+- `BoardGames/Program.cs` — console UI (input/output, subscriptions to events)
+- `BoardGames/docs/screenshots/` — screenshots
 
 ---
 
 ## How to run
-### Option A — Visual Studio
 1. Open the solution in **Visual Studio**.
 2. Select the project as **Startup Project** (if needed).
 3. Run:
@@ -33,31 +33,49 @@ Implemented requirements:
    or  
    - **Start** button.
 
-### Interactive mode
-Flow:
-1. Choose game rules (Chess / Checkers / Backgammon / Monopoly)
-2. Enter player count and names (count is validated by rules)
-3. Choose components “on the table”
-4. Start the game (validation happens automatically)
+Interactive mode
 
-Commands
-- `a` — perform an action (only actions allowed by the selected game rules)
-- `e` — end turn (switch to the next player)
-- `w` — declare winner (finish game)
-- `q` — quit interactive session
+## Flow:
 
-Events (UI output):
-- `TurnChanged` — prints the current player
-- `GameFinished` — prints the winner
+Choose game rules (Chess / Checkers / Backgammon / Monopoly)
+Enter player count and names (the domain validates rules on start)
+Choose components “on the table”
+Start the game (validation happens automatically)
 
-### Demo mode
-Demonstrates:
-- Start rejected due to **missing** required component
-- Start rejected due to **extra** component
-- Start rejected due to **invalid player count** (Monopoly)
-- Full flow: turn order, one action per turn, declaring winner, events
+### Commands
 
-### Screenshots
+a — perform an action (only actions allowed by the selected game rules)
+e — end turn (switch to the next player)
+w — declare winner (finish game)
+q — quit interactive session
+
+### Events (UI output):
+
+TurnChanged — prints the current player
+GameFinished — prints the winner
+
+## Demo mode
+
+Start rejected due to missing required component (CoR → MissingComponentsValidator)
+Start rejected due to extra component (CoR → ExtraComponentsValidator)
+Start rejected due to invalid player count (CoR → PlayersCountValidator)
+Full flow: turn order, one action per turn, declaring winner, events
+
+## Design patterns used
+### Strategy
+Where: IGameRules + ChessRules / CheckersRules / BackgammonRules / MonopolyRules
+Why: GameSession depends on abstraction (IGameRules) and switches behavior by injecting another rules implementation.
+### Factory (Simple Factory)
+Where: GameRulesFactory.Create(GameType)
+Why: centralized creation of concrete IGameRules implementations; reduces coupling in Program.
+### Chain of Responsibility (setup validation)
+Where: SetupValidationChain + ISetupValidator + validators:
+PlayersCountValidator
+MissingComponentsValidator
+ExtraComponentsValidator
+Why: setup checks are split into single-responsibility validators; the chain returns the first failing OperationResult with a clear message.
+
+## Screenshots
 **01 — Visual Studio project opened**  
 ![01](BoardGames/docs/screenshots/01.png)
 
