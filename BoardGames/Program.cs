@@ -41,7 +41,7 @@ void RunInteractiveMode()
 
     IGameRules rules = ChooseGameRules();
 
-    List<Player> players = ReadPlayers(rules.MinPlayers, rules.MaxPlayers);
+    List<Player> players = ReadPlayers(1, 10);
     List<ComponentType> components = ChooseComponents();
 
     var state = new GameState(players, components);
@@ -160,7 +160,7 @@ IGameRules ChooseGameRules()
 List<Player> ReadPlayers(int min, int max)
 {
     Console.WriteLine();
-    int count = ReadIntInRange($"Enter players count ({min}..{max}): ", min, max);
+    int count = ReadIntInRange($"Enter players count:", min, max);
 
     var players = new List<Player>();
     for (int i = 0; i < count; i++)
@@ -248,41 +248,26 @@ void OnGameFinished(Player winner)
 
 void RunDemoMode()
 {
-    Console.WriteLine();
-    Console.WriteLine("~DEMO: invalid components (missing Figures)~");
-
-    var badState1 = new GameState(
+    DemoStart(
+        "~DEMO: invalid components (missing Figures)~",
+        new ChessRules(),
         new List<Player> { new Player("A"), new Player("B") },
         new List<ComponentType> { ComponentType.Board }
     );
 
-    var badSession1 = new GameSession(new ChessRules(), badState1, new TurnManager());
-    OperationResult badStart1 = badSession1.Start();
-    Console.WriteLine($"Start result: {badStart1.Success}. {badStart1.Message}");
-
-    Console.WriteLine();
-    Console.WriteLine("~DEMO: invalid components (extra Dice)~");
-
-    var badState2 = new GameState(
+    DemoStart(
+        "~DEMO: invalid components (extra Dice)~",
+        new ChessRules(),
         new List<Player> { new Player("A"), new Player("B") },
         new List<ComponentType> { ComponentType.Board, ComponentType.Figures, ComponentType.Dice }
     );
 
-    var badSession2 = new GameSession(new ChessRules(), badState2, new TurnManager());
-    OperationResult badStart2 = badSession2.Start();
-    Console.WriteLine($"Start result: {badStart2.Success}. {badStart2.Message}");
-
-    Console.WriteLine();
-    Console.WriteLine("~DEMO: invalid players count (Monopoly)~");
-
-    var monopolyBadPlayers = new GameState(
+    DemoStart(
+        "~DEMO: invalid players count (Monopoly)~",
+        new MonopolyRules(),
         new List<Player> { new Player("A") },
         new List<ComponentType> { ComponentType.Board, ComponentType.Dice, ComponentType.Chips }
     );
-
-    var monopolySession = new GameSession(new MonopolyRules(), monopolyBadPlayers, new TurnManager());
-    OperationResult monopolyStart = monopolySession.Start();
-    Console.WriteLine($"Start result: {monopolyStart.Success}. {monopolyStart.Message}");
 
     Console.WriteLine();
     Console.WriteLine("~DEMO: full flow (Chess)~");
@@ -337,4 +322,16 @@ void RunDemoMode()
 
     session.TurnChanged -= OnTurnChanged;
     session.GameFinished -= OnGameFinished;
+}
+
+void DemoStart(string title, IGameRules rules, List<Player> players, List<ComponentType> components)
+{
+    Console.WriteLine();
+    Console.WriteLine(title);
+
+    var state = new GameState(players, components);
+    var session = new GameSession(rules, state, new TurnManager());
+
+    OperationResult result = session.Start();
+    Console.WriteLine($"Start result: {result.Success}. {result.Message}");
 }
