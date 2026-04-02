@@ -139,20 +139,28 @@ IGameRules ChooseGameRules()
     {
         Console.WriteLine();
         Console.WriteLine("Choose game:");
-        Console.WriteLine("1) Chess (2 players, Board + Figures, actions: Move/Take)");
-        Console.WriteLine("2) Checkers (2 players, Board + CheckersPieces, actions: Move/Take)");
-        Console.WriteLine("3) Backgammon (2 players, Board + Dice + Chips, actions: Move)");
-        Console.WriteLine("4) Monopoly (2..6 players, Board + Dice + Chips, actions: Move/Buy/Sell)");
+        Console.WriteLine("1) Chess");
+        Console.WriteLine("2) Checkers");
+        Console.WriteLine("3) Backgammon");
+        Console.WriteLine("4) Monopoly");
         Console.Write("Choose: ");
 
         string? s = Console.ReadLine();
 
-        if (s == "1") return new ChessRules();
-        if (s == "2") return new CheckersRules();
-        if (s == "3") return new BackgammonRules();
-        if (s == "4") return new MonopolyRules();
+        if (int.TryParse(s, out int value) == false)
+        {
+            Console.WriteLine("Enter 1..4.");
+            continue;
+        }
 
-        Console.WriteLine("Unknown option.");
+        if (Enum.IsDefined(typeof(GameType), value) == false)
+        {
+            Console.WriteLine("Enter 1..4.");
+            continue;
+        }
+
+        GameType type = (GameType)value;
+        return GameRulesFactory.Create(type);
     }
 }
 
