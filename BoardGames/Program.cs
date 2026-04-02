@@ -1,4 +1,5 @@
 ﻿using BoardGames.Domain;
+using BoardGames.Domain.Validation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,25 +48,17 @@ void RunInteractiveMode()
     var turnManager = new TurnManager();
     var session = new GameSession(rules, state, turnManager);
 
-
     session.TurnChanged += OnTurnChanged;
     session.GameFinished += OnGameFinished;
 
     Console.WriteLine();
     Console.WriteLine("Trying to start the game...");
-    bool started = session.Start();
-    Console.WriteLine($"Start result: {started}");
+    OperationResult started = session.Start();
+    Console.WriteLine($"Start result: {started.Success}. {started.Message}");
 
-    if (started == false)
-    {
-        Console.WriteLine("Game did not start. Reasons can be:");
-        Console.WriteLine("- wrong number of players");
-        Console.WriteLine("- missing required components");
-        Console.WriteLine("- extra components present");
+    if (started.Success == false)
         return;
-    }
 
-  
     while (true)
     {
         if (state.IsFinished)
@@ -264,8 +257,8 @@ void RunDemoMode()
     );
 
     var badSession1 = new GameSession(new ChessRules(), badState1, new TurnManager());
-    bool badStart1 = badSession1.Start();
-    Console.WriteLine($"Start result: {badStart1}");
+    OperationResult badStart1 = badSession1.Start();
+    Console.WriteLine($"Start result: {badStart1.Success}. {badStart1.Message}");
 
     Console.WriteLine();
     Console.WriteLine("~DEMO: invalid components (extra Dice)~");
@@ -276,8 +269,8 @@ void RunDemoMode()
     );
 
     var badSession2 = new GameSession(new ChessRules(), badState2, new TurnManager());
-    bool badStart2 = badSession2.Start();
-    Console.WriteLine($"Start result: {badStart2}");
+    OperationResult badStart2 = badSession2.Start();
+    Console.WriteLine($"Start result: {badStart2.Success}. {badStart2.Message}");
 
     Console.WriteLine();
     Console.WriteLine("~DEMO: invalid players count (Monopoly)~");
@@ -288,8 +281,8 @@ void RunDemoMode()
     );
 
     var monopolySession = new GameSession(new MonopolyRules(), monopolyBadPlayers, new TurnManager());
-    bool monopolyStart = monopolySession.Start();
-    Console.WriteLine($"Start result: {monopolyStart}");
+    OperationResult monopolyStart = monopolySession.Start();
+    Console.WriteLine($"Start result: {monopolyStart.Success}. {monopolyStart.Message}");
 
     Console.WriteLine();
     Console.WriteLine("~DEMO: full flow (Chess)~");
@@ -306,8 +299,15 @@ void RunDemoMode()
     session.TurnChanged += OnTurnChanged;
     session.GameFinished += OnGameFinished;
 
-    bool started = session.Start();
-    Console.WriteLine($"Start result: {started}");
+    OperationResult started = session.Start();
+    Console.WriteLine($"Start result: {started.Success}. {started.Message}");
+
+    if (started.Success == false)
+    {
+        session.TurnChanged -= OnTurnChanged;
+        session.GameFinished -= OnGameFinished;
+        return;
+    }
 
     Console.WriteLine("Try action by Alice: Move");
     bool a1 = session.PerformAction(players[0], ActionType.Move);

@@ -1,4 +1,7 @@
-﻿namespace BoardGames.Domain;
+﻿using BoardGames.Domain.Validation;
+using System.Collections.Generic;
+namespace BoardGames.Domain;
+
 
 public sealed class GameSession
 {
@@ -16,19 +19,26 @@ public sealed class GameSession
         this.turnManager = turnManager;
     }
 
-    public bool Start()
+    public OperationResult Start()
     {
         if (state.IsStarted || state.IsFinished)
-            return false;
+            return OperationResult.Fail("Game cannot be started: already started or finished.");
 
-        bool setupIsValid = rules.ValidateSetup(state.Players.Count, state.Components);
-        if (setupIsValid == false)
-            return false;
+        var chain = new SetupValidationChain(new List<ISetupValidator>
+    {
+        new PlayersCountValidator(),
+        new MissingComponentsValidator(),
+        new ExtraComponentsValidator()
+    });
+
+        OperationResult setupResult = chain.Validate(state, rules);
+        if (setupResult.Success == false)
+            return setupResult;
 
         state.MarkStarted();
-
         TurnChanged?.Invoke(state.GetCurrentPlayer());
-        return true;
+
+        return OperationResult.Ok("Game started successfully.");
     }
 
     public bool PerformAction(Player player, ActionType action)

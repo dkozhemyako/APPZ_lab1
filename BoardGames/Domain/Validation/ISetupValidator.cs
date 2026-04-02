@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using BoardGames.Domain;
 
-namespace BoardGames.Domain.Validation
+namespace BoardGames.Domain.Validation;
+
+public interface ISetupValidator
 {
-    internal class ISetupValidator
-    {
-    }
+    OperationResult Validate(GameState state, IGameRules rules);
 }
